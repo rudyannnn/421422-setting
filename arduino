@@ -1,0 +1,356 @@
+#include <Wire.h>
+
+#define thineMux 0x4A // 421 Slave 주소
+#define thineDeMux 0x4B // 422 Slave 주소
+#define delay_i2c 0x2
+#define monreg1 0x1c
+#define monreg2 0x1d
+#define monreg3 0x1e
+#define monreg4 0x1f
+
+void i2c_eeprom_write_byte( int deviceaddress, unsigned int eeaddress, byte data );
+void i2c_eeprom_write_byte2( int deviceaddress, unsigned int eeaddress, byte data );
+void test_421(void);
+void deMux_reset(void);
+void mux_mon(int monitoring_reg);
+void demux_mon(int monitoring_reg);
+void i2c_eeprom_read_byte(int deviceaddress, unsigned int eeaddress, int quantity);
+
+void setup() {
+  // Wire 라이브러리 초기화
+  Wire.begin(); 
+  // 직렬 통신 초기화
+  Serial.begin(9600); 
+  delay(50);
+  test_421();
+  delay(3000);
+  deMux_reset();
+}
+
+void loop() {
+  
+  delay(50);
+  mux_mon(monreg1);
+  delay(50);
+  demux_mon(monreg1);
+
+  delay(5000);
+  
+  delay(50);
+  mux_mon(monreg2);
+  delay(50);
+  demux_mon(monreg2);
+
+  delay(5000);
+  
+  delay(50);
+  mux_mon(monreg3);
+  delay(50);
+  demux_mon(monreg3);
+
+  delay(5000);
+  
+  delay(50);
+  mux_mon(monreg4);
+  delay(50);
+  demux_mon(monreg4);
+
+  delay(5000);
+  
+}
+
+void i2c_eeprom_write_byte2( int deviceaddress, unsigned int eeaddress, byte data ) {
+    int rdata = data;
+    Wire.beginTransmission(deviceaddress); // slave를 정하는 함수
+    Wire.write(0x08); // MSB
+    Wire.write((int)(eeaddress & 0xFF)); // LSB
+    Wire.write(rdata);
+    Wire.endTransmission();
+    return;
+}
+
+void i2c_eeprom_write_byte( int deviceaddress, unsigned int eeaddress, byte data ) {
+    int rdata = data;
+    Wire.beginTransmission(deviceaddress); // slave를 정하는 함수
+    Wire.write((int)(eeaddress >> 8)); // MSB
+    Wire.write((int)(eeaddress & 0xFF)); // LSB
+    Wire.write(rdata);
+    Wire.endTransmission();
+    return;
+}
+
+void i2c_eeprom_read_byte(int deviceaddress, unsigned int eeaddress, int quantity)
+{
+    Wire.beginTransmission(deviceaddress); // slave를 정하는 함수
+    Wire.write((int)(eeaddress >> 8));
+    Wire.write((int)(eeaddress & 0xFF));
+    Wire.endTransmission();
+    Wire.requestFrom(deviceaddress, 1);
+    byte slaveByte2 = Wire.read();
+    Serial.println( slaveByte2, HEX );
+    return;
+}
+
+void test_421(void){
+  
+  i2c_eeprom_write_byte(thineMux, 0x00, 0x00);  //421 tx clk disable
+  delay(delay_i2c);
+  i2c_eeprom_write_byte(thineMux, 0x01, 0x01);  //421 tx clk selection 3lane to 1lane
+  delay(delay_i2c);
+  i2c_eeprom_write_byte(thineMux, 0x00, 0x01);  //421 tx clk enable
+  delay(delay_i2c);
+  i2c_eeprom_write_byte(thineMux, 0x23, 0x01);  // 421 HS4:US1 setting
+  delay(delay_i2c);
+  i2c_eeprom_write_byte(thineMux, 0x27, 0x03);  // 421 hs lane enable
+  delay(delay_i2c);
+  delay(delay_i2c);
+
+  
+  i2c_eeprom_write_byte(thineDeMux, 0x23, 0x01);  //422 US1:US4 setting
+  delay(delay_i2c);
+  i2c_eeprom_write_byte(thineDeMux, 0x27, 0x03);  //422 HS lane enable
+  delay(delay_i2c);
+  delay(delay_i2c);
+
+  
+  i2c_eeprom_write_byte2(0x41, 0x24, 0x01);  //422 VGA Setting1
+  delay(delay_i2c); 
+  i2c_eeprom_write_byte2(0x43, 0x24, 0x01);  //422 VGA Setting2
+  delay(delay_i2c); 
+  i2c_eeprom_write_byte2(0x49, 0x24, 0x01);  //422 VGA Setting3
+  delay(delay_i2c); 
+  i2c_eeprom_write_byte2(0x4B, 0x24, 0x01);  //422 VGA Setting4
+  delay(delay_i2c); 
+
+
+  
+  i2c_eeprom_write_byte(0x41, 0x2F, 0x01);  //422 TX/RX Macro PHY Reset1
+  delay(delay_i2c);
+  i2c_eeprom_write_byte(0x41, 0x2F, 0x03);
+  delay(delay_i2c);
+  i2c_eeprom_write_byte(0x41, 0x2F, 0x02);
+  delay(delay_i2c);
+  i2c_eeprom_write_byte(0x41, 0x2F, 0x03);
+  delay(delay_i2c);
+  delay(delay_i2c);
+
+  
+  i2c_eeprom_write_byte(0x43, 0x2F, 0x01);  //422 TX/RX Macro PHY Reset2
+  delay(delay_i2c);
+  i2c_eeprom_write_byte(0x43, 0x2F, 0x03);
+  delay(delay_i2c);
+  i2c_eeprom_write_byte(0x43, 0x2F, 0x02);
+  delay(delay_i2c);
+  i2c_eeprom_write_byte(0x43, 0x2F, 0x03);
+  delay(delay_i2c);
+  delay(delay_i2c);
+
+  
+  i2c_eeprom_write_byte(0x49, 0x2F, 0x01);  //422 TX/RX Macro PHY Reset3
+  delay(delay_i2c);
+  i2c_eeprom_write_byte(0x49, 0x2F, 0x03);
+  delay(delay_i2c);
+  i2c_eeprom_write_byte(0x49, 0x2F, 0x02);
+  delay(delay_i2c);
+  i2c_eeprom_write_byte(0x49, 0x2F, 0x03);
+  delay(delay_i2c);
+  delay(delay_i2c);
+
+  
+  i2c_eeprom_write_byte(0x4B, 0x2F, 0x01);  //422 TX/RX Macro PHY Reset4
+  delay(delay_i2c);
+  i2c_eeprom_write_byte(0x4B, 0x2F, 0x03);
+  delay(delay_i2c);
+  i2c_eeprom_write_byte(0x4B, 0x2F, 0x02);
+  delay(delay_i2c);
+  i2c_eeprom_write_byte(0x4B, 0x2F, 0x03);
+  delay(delay_i2c);
+  delay(delay_i2c);
+  
+  
+  i2c_eeprom_read_byte(thineMux, 0x00, 1);
+  delay(delay_i2c);
+  i2c_eeprom_read_byte(thineMux, 0x01, 1);
+  delay(delay_i2c);
+  i2c_eeprom_read_byte(thineMux, 0x23, 1);
+  delay(delay_i2c);
+  i2c_eeprom_read_byte(thineMux, 0x27, 1);
+  delay(delay_i2c);
+  delay(delay_i2c);
+
+  return;
+}
+
+
+void mux_mon(int monitoring_reg)
+{
+  
+     /*---------------------------------------------------------
+    THCV421 #1 monitoring 
+    ---------------------------------------------------------*/    
+  delay(delay_i2c);
+     
+i2c_eeprom_write_byte(0x40, 0x73, 0x01); 
+   
+  delay(delay_i2c);
+     
+i2c_eeprom_write_byte(0x40, 0x75, monitoring_reg);   
+  delay(delay_i2c);
+     
+i2c_eeprom_write_byte(0x42, 0x73, 0x01); 
+   
+  delay(delay_i2c);
+     
+i2c_eeprom_write_byte(0x42, 0x75, monitoring_reg);   
+  delay(delay_i2c);
+     
+i2c_eeprom_write_byte(0x48, 0x73, 0x01); 
+   
+  delay(delay_i2c);
+     
+i2c_eeprom_write_byte(0x48, 0x75, monitoring_reg);   
+  delay(delay_i2c);
+     
+i2c_eeprom_write_byte(0x4A, 0x73, 0x01); 
+   
+  delay(delay_i2c);
+     
+i2c_eeprom_write_byte(0x4A, 0x75, monitoring_reg); 
+
+return;
+
+}
+
+
+void demux_mon(int monitoring_reg)
+{
+  
+     /*---------------------------------------------------------
+    THCV421 #1 monitoring 
+    ---------------------------------------------------------*/    
+  delay(delay_i2c);
+     
+i2c_eeprom_write_byte(0x41, 0x73, 0x01); 
+   
+  delay(delay_i2c);
+     
+i2c_eeprom_write_byte(0x41, 0x75, monitoring_reg);   
+  delay(delay_i2c);
+     
+i2c_eeprom_write_byte(0x43, 0x73, 0x01); 
+   
+  delay(delay_i2c);
+     
+i2c_eeprom_write_byte(0x43, 0x75, monitoring_reg);   
+  delay(delay_i2c);
+     
+i2c_eeprom_write_byte(0x49, 0x73, 0x01); 
+   
+  delay(delay_i2c);
+     
+i2c_eeprom_write_byte(0x49, 0x75, monitoring_reg);   
+  delay(delay_i2c);
+     
+i2c_eeprom_write_byte(0x4B, 0x73, 0x01); 
+   
+  delay(delay_i2c);
+     
+i2c_eeprom_write_byte(0x4B, 0x75, monitoring_reg); 
+
+return;
+
+}
+
+
+void deMux_reset(void){
+
+
+   /*---------------------------------------------------------
+    THCV422 tx/rx macro phy reset
+    ---------------------------------------------------------*/ 
+   
+    delay(delay_i2c);
+     
+   i2c_eeprom_write_byte(0x41, 0x2f, 0x01); 
+   
+    delay(delay_i2c);
+     
+   i2c_eeprom_write_byte(0x41, 0x2f, 0x03); 
+   
+    delay(delay_i2c);
+     
+   i2c_eeprom_write_byte(0x41, 0x2f, 0x02); 
+   
+    delay(delay_i2c);
+     
+   i2c_eeprom_write_byte(0x41, 0x2f, 0x03);
+   
+    delay(delay_i2c);
+     
+   i2c_eeprom_write_byte(0x43, 0x2f, 0x01); 
+   
+    delay(delay_i2c);
+     
+   i2c_eeprom_write_byte(0x43, 0x2f, 0x03); 
+   
+    delay(delay_i2c);
+     
+   i2c_eeprom_write_byte(0x43, 0x2f, 0x02); 
+   
+    delay(delay_i2c);
+     
+   i2c_eeprom_write_byte(0x43, 0x2f, 0x03);
+   
+    delay(delay_i2c);
+     
+   i2c_eeprom_write_byte(0x49, 0x2f, 0x01); 
+   
+    delay(delay_i2c);
+     
+   i2c_eeprom_write_byte(0x49, 0x2f, 0x03); 
+   
+    delay(delay_i2c);
+     
+   i2c_eeprom_write_byte(0x49, 0x2f, 0x02); 
+   
+    delay(delay_i2c);
+     
+   i2c_eeprom_write_byte(0x49, 0x2f, 0x03);
+   
+    delay(delay_i2c);
+   
+   i2c_eeprom_write_byte(0x4B, 0x2f, 0x01); 
+   
+    delay(delay_i2c);
+     
+   i2c_eeprom_write_byte(0x4B, 0x2f, 0x03); 
+   
+    delay(delay_i2c);
+     
+   i2c_eeprom_write_byte(0x4B, 0x2f, 0x02); 
+   
+    delay(delay_i2c);
+     
+   i2c_eeprom_write_byte(0x4B, 0x2f, 0x03);
+   
+    delay(delay_i2c);
+
+    
+   
+   i2c_eeprom_write_byte(0x4A, 0x2f, 0x01); 
+   
+    delay(delay_i2c);
+     
+   i2c_eeprom_write_byte(0x4A, 0x2f, 0x03); 
+   
+    delay(delay_i2c);
+     
+   i2c_eeprom_write_byte(0x4A, 0x2f, 0x02); 
+   
+    delay(delay_i2c);
+     
+   i2c_eeprom_write_byte(0x4A, 0x2f, 0x03);
+
+  return;
+}
+  
