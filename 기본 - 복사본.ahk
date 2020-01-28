@@ -3,10 +3,10 @@
 #2::reload
 #3::
     MouseGetPos, Mouse_X, Mouse_Y,,,
-    PixelGetColor, color, %MouseX%, %MouseY%
-    MsgBox The color at the current cursor position %MouseX%, %MouseY% is %color%
+    PixelGetColor, color, %Mouse_X%, %Mouse_Y%
+    MsgBox The color at the current cursor position %Mouse_X%, %Mouse_Y% is %color%
     return
-#4::send, click, %Mouse_X%, %Mouse_Y%  \;
+#4::send, click, %Mouse_X%, %Mouse_Y%, %color%
 #5::window_get_title()
 #6::ClipBoardPaste()
 
