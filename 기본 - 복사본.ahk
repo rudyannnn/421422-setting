@@ -1,7 +1,11 @@
 ﻿foldertree=D:\ahk\기본.ahk
 
 #2::reload
-#3::MouseGetPos, Mouse_X, Mouse_Y,,,
+#3::
+    MouseGetPos, Mouse_X, Mouse_Y,,,
+    PixelGetColor, color, %MouseX%, %MouseY%
+    MsgBox The color at the current cursor position %MouseX%, %MouseY% is %color%
+    return
 #4::send, click, %Mouse_X%, %Mouse_Y%  \;
 #5::window_get_title()
 #6::ClipBoardPaste()
