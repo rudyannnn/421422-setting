@@ -17,7 +17,7 @@ Numpad4::
 		else if (color <> 0x151615){
 			PixelGetColor, color, 285, 47
 			if(color<>0x1919DF){
-			click, 1362, 217
+			click, 855, 352
 			}
 			click, 517, 134
 			break
