@@ -1,199 +1,106 @@
-foldertree=D:\ahk\기본.ahk
 
-#2::reload
-#3::
-    MouseGetPos, Mouse_X, Mouse_Y,,,
-    PixelGetColor, color, %Mouse_X%, %Mouse_Y%
-    MsgBox The color at the current cursor position %Mouse_X%, %Mouse_Y% is %color%
-    return
-#4::send, click, %Mouse_X%, %Mouse_Y%, %color%
-#5::window_get_title()
-#6::ClipBoardPaste()
+^e:: edit
 
-;;;;;;;;;;;;;;;;;;;;;;
-;;;;;여기에 함수를 작성합시다.
+#2:: reload
 
-f3::
-	sleep 300
-	loop 150
+Numpad1:: nextpage("pgdn",5,"+",17,"left",4,"right",15,"up")
+Numpad2:: pagezoomLU(5,"+",17,"left",4,"right",15,"up")
+Numpad3:: pageRU(28,"right",31,"up")
+Numpad0:: pageDown(16,"down")
+Numpad4:: 
+	loop 40
 	{
-		click, 975, 907
-		sleep 600
-		click, 1002, 765
-		sleep 600
-		click, 1196, 563
-		sleep 600
+		PixelGetColor, color, 1364, 477
+		if(color = 0x151615){
+			pageDown(16,"down")
+		}
+		else if (color <> 0x151615){
+			PixelGetColor, color, 285, 47
+			if(color<>0x1919DF){
+			click, 1362, 217
+			}
+			click, 517, 134
+			break
+		}
+		sleep 10000
 	}
 	return
-;;;;;;;;;;;;;;;;;;;;;;
+Numpad6:: click, 517, 134
+Numpad5:: reload
 
-window_get_title()
+#Numpad1:: nextpage("pgup",5,"+",19,"right",4,"left",15,"down")
+#Numpad2:: pagezoomLU(5,"+",17,"right",4,"left",15,"down")
+#Numpad3:: pageRU(28,"left",31,"down")
+#Numpad0:: pageDown(16,"up")
+
+
+nextpage(pgdn,a,aa,b,bb,c,cc,d,dd)
 {
-	WinGetTitle, clipboard, A
-	return
-}
-
-^e::edit %foldertree%
-
-
-
-ClipBoardPaste()
-{
-
-		StringLen, Length_str, clipboard
-		sleep, 50
-		index_strLen = %Length_str%
-		sleep, 50
-		loop
-		{
-			if index_strLen = 0
-				break
-			StringMid, outputChar, clipboard, Length_str-index_strLen+1, 1
-			send,{%outputChar%}
-			index_strLen-=1
-		}
-		sleep, 200
-	return
-}
-
-
-SetTimer, timechange, 100
-return
-
-timechange:
-user_hour = 22		;시각 keyin
-user_min = 0		;분 keyin
-user_sec = 0		;초 keyin
-;SoundBeep
-/*
-if A_Hour = %user_hour%
-{
-	if A_Min = %user_min%
-	{						
-
-				
-		if A_Sec = %user_sec%
-		{
-			sleep, 100
-			MouseClick, left, 453, 94	
-
-	; 시설 조회
-			Sleep, 600
-			MouseClick, left, 258, 215	
-
-	; 시설 선택
-			Sleep, 100
-			MouseClick, left, 172, 504	
-
-	; 시작시간 선택
-			Sleep, 300
-			send, {End}
-			Sleep, 100
-			send, {PgUp 5}
-			MouseClick, left, 178, 480	
-
-	; 시간 선택
-			Sleep, 100
-			MouseClick, left, 445, 505	
-
-	; 선택키 누름
-			Sleep, 100
-			MouseClick, left, 446, 554	
-
-	; Sub 창 종료
-			Sleep, 100
-			WinWaitActive,  
-
-http://bizsupport.lgdisplay.com:3100 - OneClick - 
-
-Microsoft Internet Explorer
-			Sleep, 100
-			MouseClick, left, 242, 250	
-
-	; 이용목적 입력 클릭
-			clipboard=All In One TDR 
-
-팀내 경기
-			Send, ^v			
-
-	; 이용목적 입력
-			MouseClick, left, 699, 399	
-
-	; 이용인원수 클릭
-			Sleep, 100
-			send, {Numpad9}			
-
-	; 이용인원수 입력
-			MouseClick, left, 794, 402	
-
-	; 이용인원수 체크
-			WinWaitActive, Microsoft 
-
-Internet Explorer
-			Sleep, 100
-			MouseClick, left, 89, 96	
-
-	; 확인
-			Sleep, 100
-			MouseClick, left, 737, 632	
-
-	; 신청
-			Sleep, 100
-			send, {Enter}
-		}
+	sleep 200
+	send,{%pgdn%}
+	loop, %a%
+	{
+		send,{%aa%}
 	}
-}
-*/
-
-if A_Hour = %user_hour%
-{
-	if A_Min = %user_min%
-	{						
-
-				
-		if A_Sec = %user_sec%
-		{
-			MouseClick, left, 570, 444
-			Sleep, 50
-			send, {Enter}
-		}
+	loop, %b%
+	{
+		send,{%bb%}
 	}
+	loop, %c%
+	{
+		send,{%cc%}
+	}
+	loop, %d%
+	{
+		send,{%dd%}
+	}
+	send,{-}
+	return
 }
-return
 
-/*
-
-`::	;via 뚫을때 layer 원복
-	
-	MouseGetPos, Mouse_X, Mouse_Y, , ,
-	widthh=%widthhh%
-	widthh-=220
-	click,left, %widthh%,150
-	MouseMove,%Mouse_X%, %Mouse_Y%
+pagezoomLU(a,aa,b,bb,c,cc,d,dd)
+{
+	sleep 200
+	loop, %a%
+	{
+		send,{%aa%}
+	}
+	loop, %b%
+	{
+		send,{%bb%}
+	}
+	loop, %c%
+	{
+		send,{%cc%}
+	}
+	loop, %d%
+	{
+		send,{%dd%}
+	}
+	send,{-}
 	return
+}
 
-f1::	;Line Width 조정
-	MouseGetPos, Mouse_X, Mouse_Y, , ,
-	widthh=%widthhh%
-	widthh-=200 
-	click,left,%widthh%,128
-	MouseMove,%Mouse_X%, %Mouse_Y%
+pageRU(a,aa,b,bb)
+{
+	sleep 200
+
+	loop, %a%
+	{
+		send,{%aa%}
+	}
+	loop, %b%
+	{
+		send,{%bb%}
+	}
 	return
+}
 
-f2::	;add via
-	MouseGetPos, Mouse_X, Mouse_Y, , ,
-	widthh=%widthhh%
-	widthh-=130
-	click,left,%widthh%, 636
-	MouseMove,%Mouse_X%, %Mouse_Y%
+pageDown(a,aa)
+{
+	loop, %a%
+	{
+		send,{%aa%}
+	}
 	return
-
-f5::	; cut fill
-	MouseGetPos, Mouse_X, Mouse_Y, , ,
-	widthh=%widthhh%
-	widthh-=130 
-	click,left,%widthh%,706
-	MouseMove,%Mouse_X%, %Mouse_Y%
-	return
-
-*/
+}
