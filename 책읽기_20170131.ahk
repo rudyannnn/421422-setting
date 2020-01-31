@@ -10,19 +10,22 @@ Numpad0:: pageDown(16,"down")
 Numpad4:: 
 	loop 40
 	{
+		sleep 100
+		pageDown(16,"down")
+		sleep 1000
 		PixelGetColor, color, 1364, 477
-		if(color = 0x151615){
-			pageDown(16,"down")
-		}
-		else if (color <> 0x151615){
+		if (color <> 0x151615){
 			PixelGetColor, color, 285, 47
 			if(color<>0x1919DF){
 			click, 855, 352
 			}
 			click, 517, 134
+			sleep 5000
+			click, 855, 352
+			MouseMove 1000, 300
 			break
 		}
-		sleep 10000
+		sleep 9000
 	}
 	return
 Numpad6:: click, 517, 134
